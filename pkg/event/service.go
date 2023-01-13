@@ -1,0 +1,101 @@
+package event
+
+import (
+	"errors"
+	"github.com/google/uuid"
+	"lambda-runtime-simulator/pkg/config"
+	"time"
+)
+
+type Invocation struct {
+	Id        string
+	Body      string
+	Timeout   time.Time
+	Response  *string
+	Error     *RuntimeError
+	ErrorType *string
+}
+
+type Service struct {
+	config  *config.Runtime
+	holder  map[string]*Invocation
+	channel chan *Invocation
+}
+
+func NewService(cfg *config.Runtime) *Service {
+	result := &Service{
+		config:  cfg,
+		holder:  map[string]*Invocation{},
+		channel: make(chan *Invocation, 100),
+	}
+
+	return result
+}
+
+func (s Service) ResetAll() error {
+	prevChan := s.channel
+	s.channel = make(chan *Invocation, 100)
+	if prevChan != nil {
+		close(prevChan)
+	}
+
+	s.holder = map[string]*Invocation{}
+
+	return nil
+}
+
+func (s Service) GetNextInvocation() (*Invocation, error) {
+	next := <-s.channel
+	// TODO: Some kind of error handling here
+	return next, nil
+}
+
+func (s Service) PushInvocation(body string) error {
+	invocation := Invocation{
+		Id:      uuid.NewString(),
+		Body:    body,
+		Timeout: time.Now().UTC().Add(time.Duration(s.config.TimeoutInSeconds) * time.Second),
+	}
+
+	s.holder[invocation.Id] = &invocation
+	s.channel <- &invocation
+
+	return nil
+}
+
+func (s Service) SendResponse(id string, body []byte) error {
+	inv := s.holder[id]
+	if inv == nil {
+		return errors.New("request does not exist")
+	}
+
+	now := time.Now().UTC()
+	// Check for Timeout
+	if now.After(inv.Timeout) || now.Equal(inv.Timeout) {
+		return errors.New("invocation timeout")
+	}
+
+	b := string(body)
+	inv.Body = b
+	return nil
+}
+
+func (s Service) SendError(id string, error *RuntimeError, errorType string) error {
+	inv := s.holder[id]
+	if inv == nil {
+		return errors.New("request does not exist")
+	}
+
+	now := time.Now().UTC()
+	// Check for Timeout
+	if now.After(inv.Timeout) || now.Equal(inv.Timeout) {
+		return errors.New("invocation timeout")
+	}
+
+	inv.Error = error
+	if errorType != "" {
+		inv.ErrorType = &errorType
+	}
+
+	return nil
+}
