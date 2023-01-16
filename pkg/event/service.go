@@ -3,6 +3,7 @@ package event
 import (
 	"errors"
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 	"lambda-runtime-simulator/pkg/config"
 	"time"
 )
@@ -33,6 +34,7 @@ func NewService(cfg *config.Runtime) *Service {
 }
 
 func (s Service) ResetAll() error {
+	log.Warn("Resetting internal cache")
 	prevChan := s.channel
 	s.channel = make(chan *Invocation, 100)
 	if prevChan != nil {
@@ -45,8 +47,10 @@ func (s Service) ResetAll() error {
 }
 
 func (s Service) GetNextInvocation() (*Invocation, error) {
+	log.Debug("Awaiting next invocation")
 	next := <-s.channel
 	// TODO: Some kind of error handling here
+	log.Debugf("Next invocation received %v", next.Id)
 	return next, nil
 }
 
