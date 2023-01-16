@@ -21,13 +21,39 @@ func NewAdminController(svc *event.Service) *AdminController {
 }
 
 func (a AdminController) RegisterRoutes(e *echo.Echo) error {
-	e.GET("/log", nil)
-	e.GET("/log/stream", nil)
-	e.GET("/response/:requestId", nil)
-	e.POST("/log/clear", nil)
+	e.GET("/log", a.GetLoggedInvocations)
+	e.GET("/log/:requestId", a.GetInvocationById)
+	e.POST("/log/clear", a.ResetAllCaches)
 	e.POST("/push", a.Push)
-
 	return nil
+}
+
+func (a AdminController) GetLoggedInvocations(c echo.Context) error {
+	invocations := a.service.GetCachedInvocations()
+	return c.JSON(http.StatusOK, invocations)
+}
+
+func (a AdminController) GetInvocationById(c echo.Context) error {
+	id := c.QueryParam("requestId")
+	if id == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, errors.New("invalid id"))
+	}
+
+	invocation := a.service.GetById(id)
+	if invocation == nil {
+		return c.NoContent(http.StatusNotFound)
+	}
+
+	return c.JSON(http.StatusOK, invocation)
+}
+
+func (a AdminController) ResetAllCaches(c echo.Context) error {
+	err := a.service.ResetAll()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return c.NoContent(http.StatusOK)
 }
 
 func (a AdminController) Push(c echo.Context) error {

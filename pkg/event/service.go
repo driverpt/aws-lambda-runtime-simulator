@@ -8,12 +8,12 @@ import (
 )
 
 type Invocation struct {
-	Id        string
-	Body      string
-	Timeout   time.Time
-	Response  *string
-	Error     *RuntimeError
-	ErrorType *string
+	Id        string        `json:"id"`
+	Body      string        `json:"body"`
+	Timeout   time.Time     `json:"timeout"`
+	Response  *string       `json:"response"`
+	Error     *RuntimeError `json:"error"`
+	ErrorType *string       `json:"errorType"`
 }
 
 type Service struct {
@@ -98,4 +98,18 @@ func (s Service) SendError(id string, error *RuntimeError, errorType string) err
 	}
 
 	return nil
+}
+
+func (s Service) GetCachedInvocations() []*Invocation {
+	var result []*Invocation
+
+	for _, v := range s.holder {
+		result = append(result, v)
+	}
+
+	return result
+}
+
+func (s Service) GetById(id string) *Invocation {
+	return s.holder[id]
 }
