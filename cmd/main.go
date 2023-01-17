@@ -42,7 +42,7 @@ func main() {
 
 	err = server.SetupServer(e, controllers...)
 	if err != nil {
-		log.Panicf("Error while initializing HTTP Server", err.Error())
+		log.Panicf("Error while initializing HTTP Server: %v", err.Error())
 	}
 
 	if err := http.ListenAndServe(fmt.Sprint("0.0.0.0:", env.Port), e); err != http.ErrServerClosed {
