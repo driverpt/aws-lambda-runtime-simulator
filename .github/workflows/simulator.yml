@@ -33,7 +33,7 @@ jobs:
           go-version: ${{ matrix.go }}
           
       - name: Install dependencies
-        run: go get .
+        run: go get ./...
         
       - name: Run Tests
         run: go test -race --coverprofile=coverage.coverprofile --covermode=atomic ./...
