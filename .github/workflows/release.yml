@@ -8,8 +8,7 @@ env:
   LATEST_GO_VERSION: 1.19
 
 permissions:
-  contents: read
-  packages: write
+  contents: write
 
 jobs:
   releases-matrix:
