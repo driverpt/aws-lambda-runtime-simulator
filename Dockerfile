@@ -1,6 +1,6 @@
 ARG GO_VERSION=1.19
 
-FROM golang:GO_VERSION as build
+FROM golang:${GO_VERSION} as build
 
 WORKDIR /go/src/app
 COPY . .
