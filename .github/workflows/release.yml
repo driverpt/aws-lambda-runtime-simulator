@@ -41,4 +41,4 @@ jobs:
   dockerhub-release:
     name: Call Docker Hub Release
     uses:
-      ./.github/workflows/release.yml
+      ./.github/workflows/docker.yml
