@@ -26,6 +26,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Set Environment Variables
+        run: |
+          IMG=lambda-api-simulator
+          OWNER="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
+          echo "IMAGE=${OWNER}/${IMG}" >> $GITHUB_ENV
+
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
@@ -33,5 +39,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            driverpt/lambda-api-simulator:latest
-            driverpt/lambda-api-simulator:${{env.GITHUB_REF_NAME}}
+            ${{env.IMAGE}}:latest
+            ${{env.IMAGE}}:${{ github.ref_name }}
