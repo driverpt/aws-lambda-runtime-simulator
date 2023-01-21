@@ -39,5 +39,6 @@ jobs:
           ldflags: "-s -w"
           extra_files: LICENSE README.md
   dockerhub-release:
+    name: Call Docker Hub Release
     uses:
-      driverpt/aws-lambda-runtime-simulator/.github/workflows/release.yml
+      ./.github/workflows/release.yml
