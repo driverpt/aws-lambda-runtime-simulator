@@ -42,3 +42,4 @@ jobs:
     name: Call Docker Hub Release
     uses:
       ./.github/workflows/docker.yml
+    secrets: inherit
