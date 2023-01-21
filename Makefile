@@ -4,7 +4,7 @@ tidy:
 	$(GO) mod tidy
 
 build-simulator:
-	$(GO) build cmd/simulator/main.go -o bin/simulator
+	$(GO) build -o bin/simulator cmd/simulator/main.go
 
 deps:
 	$(GO) get ./...
