@@ -1,10 +1,14 @@
 GO=go
 
+ifdef LD_FLAGS
+LD_FLAGS_ARG=-ldflags "${LD_FLAGS}"
+endif
+
 tidy:
 	$(GO) mod tidy
 
 build-simulator:
-	$(GO) build -o bin/simulator cmd/simulator/main.go
+	$(GO) build -o bin/simulator ${LD_FLAGS_ARG} cmd/simulator/main.go
 
 deps:
 	$(GO) get ./...
@@ -12,7 +16,7 @@ deps:
 vet:
 	$(GO) vet ./...
 
-test:
+test: deps
 	$(GO) test -race --coverprofile=coverage.coverprofile --covermode=atomic ./...
 
-build: deps vet test build-simulator
+build: deps vet build-simulator
