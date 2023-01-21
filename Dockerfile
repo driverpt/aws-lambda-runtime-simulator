@@ -5,9 +5,10 @@ FROM golang:${GO_VERSION} as build
 WORKDIR /go/src/app
 COPY . .
 
-RUN CGO_ENABLED=0 make build
+RUN make test
+RUN CGO_ENABLED=0 LD_FLAGS="-s -w" make build
 
 FROM gcr.io/distroless/static-debian11
 
-COPY --from=build /go/src/bin/simulator /
+COPY --from=build /go/src/app/bin/simulator /usr/bin/simulator
 CMD ["simulator"]
