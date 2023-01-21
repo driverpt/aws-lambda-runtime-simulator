@@ -21,3 +21,17 @@ jobs:
           driver-opts: |
             image=moby/buildkit:master
             network=host
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            driverpt/lambda-api-simulator:latest
+            driverpt/lambda-api-simulator:${{env.GITHUB_REF_NAME}}
