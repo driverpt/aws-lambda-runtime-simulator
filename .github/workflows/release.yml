@@ -2,7 +2,7 @@ name: Release AWS Lambda API Simulator
 
 on:
   release:
-    types: [created]
+    types: [published]
 
 env:
   LATEST_GO_VERSION: 1.19
