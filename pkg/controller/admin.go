@@ -3,10 +3,11 @@ package controller
 import (
 	"encoding/json"
 	"errors"
-	"github.com/labstack/echo/v4"
 	"io"
 	"lambda-runtime-simulator/pkg/event"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 type AdminController struct {
@@ -70,10 +71,10 @@ func (a AdminController) Push(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	err = a.service.PushInvocation(string(body))
+	id, err := a.service.PushInvocation(string(body))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	return nil
+	return c.JSON(http.StatusOK, &NewInvocationResponseDto{Id: id})
 }

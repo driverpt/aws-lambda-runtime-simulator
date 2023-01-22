@@ -2,10 +2,11 @@ package event
 
 import (
 	"errors"
-	"github.com/google/uuid"
-	log "github.com/sirupsen/logrus"
 	"lambda-runtime-simulator/pkg/config"
 	"time"
+
+	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 )
 
 type Invocation struct {
@@ -54,7 +55,7 @@ func (s Service) GetNextInvocation() (*Invocation, error) {
 	return next, nil
 }
 
-func (s Service) PushInvocation(body string) error {
+func (s Service) PushInvocation(body string) (string, error) {
 	invocation := Invocation{
 		Id:      uuid.NewString(),
 		Body:    body,
@@ -64,7 +65,7 @@ func (s Service) PushInvocation(body string) error {
 	s.holder[invocation.Id] = &invocation
 	s.channel <- &invocation
 
-	return nil
+	return invocation.Id, nil
 }
 
 func (s Service) SendResponse(id string, body []byte) error {
