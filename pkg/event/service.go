@@ -35,7 +35,7 @@ func NewService(cfg *config.Runtime) *Service {
 	return result
 }
 
-func (s Service) ResetAll() error {
+func (s *Service) ResetAll() error {
 	log.Warn("Resetting internal cache")
 	prevChan := s.channel
 	s.channel = make(chan *Invocation, 100)
