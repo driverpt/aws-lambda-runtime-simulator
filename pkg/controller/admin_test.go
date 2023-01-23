@@ -26,7 +26,7 @@ func TestInvocationCreation(t *testing.T) {
 
 	body := "{}"
 
-	req := httptest.NewRequest(http.MethodPost, "/push", strings.NewReader(body))
+	req := httptest.NewRequest(http.MethodPost, "/invocation", strings.NewReader(body))
 	rec := httptest.NewRecorder()
 	e.Server.Handler.ServeHTTP(rec, req)
 
