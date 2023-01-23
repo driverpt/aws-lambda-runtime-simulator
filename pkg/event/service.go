@@ -1,6 +1,7 @@
 package event
 
 import (
+	"encoding/json"
 	"errors"
 	"lambda-runtime-simulator/pkg/config"
 	"time"
@@ -11,7 +12,7 @@ import (
 
 type Invocation struct {
 	Id        string        `json:"id"`
-	Body      string        `json:"body"`
+	Body      interface{}   `json:"body"`
 	Timeout   time.Time     `json:"timeout"`
 	Response  *string       `json:"response"`
 	Error     *RuntimeError `json:"error"`
@@ -51,14 +52,22 @@ func (s Service) GetNextInvocation() (*Invocation, error) {
 	log.Debug("Awaiting next invocation")
 	next := <-s.channel
 	// TODO: Some kind of error handling here
-	log.Debugf("Next invocation received %v", next.Id)
+	if next != nil {
+		log.Debugf("Next invocation received %v", next.Id)
+	}
 	return next, nil
 }
 
 func (s Service) PushInvocation(body string) (string, error) {
+	var b interface{}
+	err := json.Unmarshal([]byte(body), &b)
+	if err != nil {
+		return "", err
+	}
+
 	invocation := Invocation{
 		Id:      uuid.NewString(),
-		Body:    body,
+		Body:    b,
 		Timeout: time.Now().UTC().Add(time.Duration(s.config.TimeoutInSeconds) * time.Second),
 	}
 

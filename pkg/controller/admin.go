@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"errors"
 	"io"
 	"lambda-runtime-simulator/pkg/event"
@@ -60,13 +59,6 @@ func (a AdminController) ResetAllCaches(c echo.Context) error {
 
 func (a AdminController) Push(c echo.Context) error {
 	body, err := io.ReadAll(c.Request().Body)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err)
-	}
-
-	// Json sanity check
-	var data interface{}
-	err = json.Unmarshal(body, &data)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
