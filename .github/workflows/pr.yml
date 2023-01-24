@@ -14,6 +14,7 @@ permissions:
 
 env:
   LATEST_GO_VERSION: 1.19
+  RACE: true
 
 jobs:
   test:
@@ -33,7 +34,7 @@ jobs:
           go-version: ${{ matrix.go }}
 
       - name: Run Tests
-        run: RACE=true make test
+        run: make test
 
       - name: Build & Run Tests
         run: make build
