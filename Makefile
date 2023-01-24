@@ -4,6 +4,10 @@ ifdef LD_FLAGS
 LD_FLAGS_ARG=-ldflags "${LD_FLAGS}"
 endif
 
+ifeq ($(RACE), true)
+RACE_ARG=-race
+endif
+
 tidy:
 	$(GO) mod tidy
 
@@ -17,6 +21,6 @@ vet:
 	$(GO) vet ./...
 
 test: deps
-	$(GO) test -race --coverprofile=coverage.coverprofile --covermode=atomic ./...
+	$(GO) test ${RACE_ARG} --coverprofile=coverage.coverprofile --covermode=atomic ./...
 
 build: deps vet build-simulator

@@ -33,7 +33,7 @@ jobs:
           go-version: ${{ matrix.go }}
 
       - name: Run Tests
-        run: make test
+        run: RACE=true make test
 
       - name: Build & Run Tests
         run: make build
