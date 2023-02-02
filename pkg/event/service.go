@@ -14,7 +14,7 @@ type Invocation struct {
 	Id        string        `json:"id"`
 	Body      interface{}   `json:"body"`
 	Timeout   time.Time     `json:"timeout"`
-	Response  *string       `json:"response"`
+	Response  interface{}   `json:"response"`
 	Error     *RuntimeError `json:"error"`
 	ErrorType *string       `json:"errorType"`
 }
@@ -89,7 +89,12 @@ func (s Service) SendResponse(id string, body []byte) error {
 		return errors.New("invocation timeout")
 	}
 
-	b := string(body)
+	var b interface{}
+	err := json.Unmarshal([]byte(body), &b)
+	if err != nil {
+		return err
+	}
+
 	inv.Body = b
 	return nil
 }
