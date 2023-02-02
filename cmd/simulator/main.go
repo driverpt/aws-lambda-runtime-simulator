@@ -2,16 +2,18 @@ package main
 
 import (
 	"fmt"
-	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 	"lambda-runtime-simulator/pkg/config"
 	"lambda-runtime-simulator/pkg/controller"
 	"lambda-runtime-simulator/pkg/event"
 	"lambda-runtime-simulator/pkg/server"
-	"log"
 	"net/http"
+	"os"
+
+	"github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 
 	"github.com/kelseyhightower/envconfig"
+	log "github.com/sirupsen/logrus"
 )
 
 type EnvironmentVariables struct {
@@ -19,6 +21,15 @@ type EnvironmentVariables struct {
 	LambdaTimeout int    `envconfig:"function_timeout" default:"120"`
 	Arn           string `envconfig:"lambda_arn"`
 	LogLevel      string `envconfig:"log_level" default:"info"`
+}
+
+func init() {
+	log.SetOutput(os.Stdout)
+	log.SetFormatter(&log.TextFormatter{
+		DisableColors:   true,
+		TimestampFormat: "2006-01-02 15:04:05",
+		FullTimestamp:   true,
+	})
 }
 
 func main() {
