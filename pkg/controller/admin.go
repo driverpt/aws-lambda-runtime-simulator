@@ -35,7 +35,7 @@ func (a AdminController) GetLoggedInvocations(c echo.Context) error {
 }
 
 func (a AdminController) GetInvocationById(c echo.Context) error {
-	id := c.QueryParam("invocationId")
+	id := c.Param("invocationId")
 	if id == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, errors.New("invalid id"))
 	}
