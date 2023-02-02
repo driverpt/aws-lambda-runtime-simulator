@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	log "github.com/sirupsen/logrus"
 )
 
 type RuntimeController struct {
@@ -29,6 +30,7 @@ func (r RuntimeController) RegisterRoutes(e *echo.Echo) error {
 	e.GET("/2018-06-01/runtime/invocation/next", r.NextInvocation)
 	e.POST("/2018-06-01/runtime/invocation/:requestId/response", r.SendResponse)
 	e.POST("/2018-06-01/runtime/invocation/:requestId/error", r.SendError)
+	e.POST("/2018-06-01/runtime/runtime/init/error", r.SendRuntimeInitError)
 
 	return nil
 }
@@ -73,6 +75,24 @@ func (r RuntimeController) SendError(c echo.Context) error {
 	}
 
 	err = r.service.SendError(requestId, &body, errorType)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return err
+}
+
+func (r RuntimeController) SendRuntimeInitError(c echo.Context) error {
+	hErrorType := c.Request().Header.Get(lambda.HeaderLambdaRuntimeFunctionErrorType)
+	log.Warnf("Runtime Init Received: %v", hErrorType)
+
+	var body event.RuntimeError
+	err := c.Bind(&body)
+	if err != nil {
+		return c.String(http.StatusBadRequest, "invalid body")
+	}
+
+	err = r.service.SendRuntimeInitError(body.ErrorMessage, body.ErrorType, body.StackTrace...)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}

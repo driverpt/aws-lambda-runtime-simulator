@@ -127,3 +127,10 @@ func (s Service) GetCachedInvocations() []*Invocation {
 func (s Service) GetById(id string) *Invocation {
 	return s.holder[id]
 }
+
+func (s Service) SendRuntimeInitError(message string, errorType string, stackTrace ...string) error {
+	// For now just Log the request
+	log.Infof("Runtime Error Received [Message:%v, Type:%v]", message, errorType)
+	log.Infof("StackTrace: %v", stackTrace)
+	return nil
+}
