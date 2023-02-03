@@ -28,7 +28,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Set Environment Variables
         run: |
-          IMG=aws-lambda-api-simulator
+          IMG=aws-lambda-runtime-simulator
           OWNER="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
           echo "IMAGE=${OWNER}/${IMG}" >> $GITHUB_ENV
 
