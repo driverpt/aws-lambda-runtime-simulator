@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"lambda-runtime-simulator/pkg/config"
+	"lambda-runtime-simulator/pkg/utils"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,11 +13,13 @@ import (
 
 type Invocation struct {
 	Id        string        `json:"id"`
-	Body      interface{}   `json:"body"`
+	Body      interface{}   `json:"body,omitempty"`
 	Timeout   time.Time     `json:"timeout"`
-	Response  interface{}   `json:"response"`
-	Error     *RuntimeError `json:"error"`
-	ErrorType *string       `json:"errorType"`
+	Response  interface{}   `json:"response,omitempty"`
+	StartedAt time.Time     `json:"startedAt"`
+	Duration  *int          `json:"duration,omitempty"`
+	Error     *RuntimeError `json:"error,omitempty"`
+	ErrorType *string       `json:"errorType,omitempty"`
 }
 
 type Service struct {
@@ -65,11 +68,15 @@ func (s Service) PushInvocation(body string) (string, error) {
 		return "", err
 	}
 
+	now := time.Now().UTC()
+
 	invocation := Invocation{
-		Id:      uuid.NewString(),
-		Body:    b,
-		Timeout: time.Now().UTC().Add(time.Duration(s.config.TimeoutInSeconds) * time.Second),
+		Id:        uuid.NewString(),
+		Body:      b,
+		StartedAt: now,
 	}
+
+	invocation.Timeout = now.Add(time.Duration(s.config.TimeoutInSeconds) * time.Second)
 
 	s.holder[invocation.Id] = &invocation
 	s.channel <- &invocation
@@ -95,7 +102,10 @@ func (s Service) SendResponse(id string, body []byte) error {
 		return err
 	}
 
-	inv.Body = b
+	diff := now.Sub(inv.StartedAt)
+
+	inv.Response = b
+	inv.Duration = utils.ToPointer(int(diff.Seconds()))
 	return nil
 }
 
@@ -103,6 +113,10 @@ func (s Service) SendError(id string, error *RuntimeError, errorType string) err
 	inv := s.holder[id]
 	if inv == nil {
 		return errors.New("request does not exist")
+	}
+
+	if inv.Response != nil || inv.Error != nil {
+		return errors.New("response already set")
 	}
 
 	now := time.Now().UTC()
@@ -116,6 +130,8 @@ func (s Service) SendError(id string, error *RuntimeError, errorType string) err
 		inv.ErrorType = &errorType
 	}
 
+	diff := now.Sub(inv.StartedAt)
+	inv.Duration = utils.ToPointer(int(diff.Seconds()))
 	return nil
 }
 
