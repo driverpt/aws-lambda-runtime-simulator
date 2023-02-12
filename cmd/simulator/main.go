@@ -56,7 +56,10 @@ func main() {
 		log.Panicf("Error while initializing HTTP Server: %v", err.Error())
 	}
 
-	if err := http.ListenAndServe(fmt.Sprint("0.0.0.0:", env.Port), e); err != http.ErrServerClosed {
+	hostPort := fmt.Sprint("0.0.0.0:", env.Port)
+
+	log.Infof("Listening on %v", hostPort)
+	if err := http.ListenAndServe(hostPort, e); err != http.ErrServerClosed {
 		log.Fatal(err)
 	}
 }

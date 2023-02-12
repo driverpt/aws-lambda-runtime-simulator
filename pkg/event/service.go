@@ -39,7 +39,7 @@ func NewService(cfg *config.Runtime) *Service {
 }
 
 func (s *Service) ResetAll() error {
-	log.Warn("Resetting internal cache")
+	log.Warn("Resetting internal cache. All pending invocations will return nil")
 	prevChan := s.channel
 	s.channel = make(chan *Invocation, 100)
 	if prevChan != nil {
@@ -62,9 +62,11 @@ func (s Service) GetNextInvocation() (*Invocation, error) {
 }
 
 func (s Service) PushInvocation(body string) (string, error) {
+	log.Debugf("Pushing new invocation: %v", body)
 	var b interface{}
 	err := json.Unmarshal([]byte(body), &b)
 	if err != nil {
+		log.Errorf("Invalid JSON: %v", err)
 		return "", err
 	}
 
@@ -77,6 +79,7 @@ func (s Service) PushInvocation(body string) (string, error) {
 	}
 
 	invocation.Timeout = now.Add(time.Duration(s.config.TimeoutInSeconds) * time.Second)
+	log.Debugf("Invocation ID: %v", invocation.Id)
 
 	s.holder[invocation.Id] = &invocation
 	s.channel <- &invocation
@@ -97,11 +100,12 @@ func (s Service) SendResponse(id string, body []byte) error {
 	}
 
 	var b interface{}
-	err := json.Unmarshal([]byte(body), &b)
+	err := json.Unmarshal(body, &b)
 	if err != nil {
 		return err
 	}
 
+	log.Debugf("Response received %v: %v", id, b)
 	diff := now.Sub(inv.StartedAt)
 
 	inv.Response = b
@@ -129,6 +133,8 @@ func (s Service) SendError(id string, error *RuntimeError, errorType string) err
 	if errorType != "" {
 		inv.ErrorType = &errorType
 	}
+
+	log.Debugf("Error received %v: %v,%v", id, error, errorType)
 
 	diff := now.Sub(inv.StartedAt)
 	inv.Duration = utils.ToPointer(int(diff.Seconds()))

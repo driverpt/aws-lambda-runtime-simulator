@@ -41,6 +41,10 @@ func (r RuntimeController) NextInvocation(c echo.Context) error {
 		return err
 	}
 
+	if next == nil {
+		return echo.NewHTTPError(http.StatusNotFound)
+	}
+
 	c.Response().Header().Set(lambda.HeaderLambdaRuntimeAwsRequestId, next.Id)
 	c.Response().Header().Set(lambda.HeaderLambdaRuntimeInvokedFunctionArn, r.config.Arn)
 	c.Response().Header().Set(lambda.HeaderLambdaRuntimeDeadlineMs, fmt.Sprint(next.Timeout.Unix()))
