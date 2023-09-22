@@ -20,7 +20,7 @@ This package is also available as Docker Container.
 
 ### TL;DR
 ```shell
-docker run -p 8080:8080 -d driverpt/aws-lambda-api-simulator
+docker run -p 8080:8080 -d driverpt/aws-lambda-runtime-simulator
 ```
 
 Start your handler by setting `AWS_LAMBDA_RUNTIME_API` Env Var to `localhost:8080`
