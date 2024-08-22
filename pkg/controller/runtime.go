@@ -30,7 +30,7 @@ func (r RuntimeController) RegisterRoutes(e *echo.Echo) error {
 	e.GET("/2018-06-01/runtime/invocation/next", r.NextInvocation)
 	e.POST("/2018-06-01/runtime/invocation/:requestId/response", r.SendResponse)
 	e.POST("/2018-06-01/runtime/invocation/:requestId/error", r.SendError)
-	e.POST("/2018-06-01/runtime/runtime/init/error", r.SendRuntimeInitError)
+	e.POST("/2018-06-01/runtime/init/error", r.SendRuntimeInitError)
 
 	return nil
 }
